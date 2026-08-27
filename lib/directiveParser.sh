@@ -8,9 +8,9 @@ testConsumeDirectiveInto()
     [ -n "${remainingTest+t}" ] || remainingTest=",${TEST},"
 
     case "$remainingTest" in
-	*,"${testee}${sigil}"*([^:,])"${module:+:}${module}",*)
-	    directiveRef=",${remainingTest},"; directiveRef="${directiveRef#*,${testee}${sigil}}"; directiveRef="${directiveRef%%${module:+:}${module},*}"
-	    remainingTest="${remainingTest/",${testee}${sigil}${directiveRef}${module:+:}${module},"/,}"
+	*,"${testee}${sigil}"*([^:,])"${module:+:}${module}${testPointName:+::}${testPointName}",*)
+	    directiveRef=",${remainingTest},"; directiveRef="${directiveRef#*,${testee}${sigil}}"; directiveRef="${directiveRef%%${module:+:}${module}${testPointName:+::}${testPointName},*}"
+	    remainingTest="${remainingTest/",${testee}${sigil}${directiveRef}${module:+:}${module}${testPointName:+::}${testPointName},"/,}"
 	    return 0
 	    ;;
 
