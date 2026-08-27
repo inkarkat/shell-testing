@@ -58,6 +58,10 @@ HELPDESCRIPTION
     --piped		Indicate that the COMMAND is part of a pipeline.
 			Multiple OTHER-COMMANDs are joined with "|" instead of
 			";" then.
+
+SEE ALSO:
+- debugeval is a variant that triggers on DEBUG instead of TEST and also writes
+  execution traces and supports trace enablement, and is intended for debugging.
 HELPTEXT
 }
 
