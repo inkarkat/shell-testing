@@ -10,7 +10,7 @@ printShortUsage()
 {
     # Note: short followed by long option; if the user knows the short one, they can
     # skim the long one.
-    printf 'Usage: %q %s\n' "$(basename "$1")" '[--for TESTEE] [-m|--module MODULE] [-?|-h|--help] ...'
+    printf 'Usage: %q %s\n' "$(basename "$1")" '[--for TESTEE] [-m|--module MODULE] [--piped] [-?|-h|--help] ...'
     printf 'Usage: eval $(${TEST:+%q %s} "${TEST:-echo}" %s)\n' "$(basename "$1")" '... --' 'SIMPLECOMMAND [...]'
     printf 'Usage: eval $(${TEST:+%q %s} "${TEST:-echo}" %s)\n' "$(basename "$1")" '... -c|--command' '"COMMANDLINE"'
 }
@@ -55,6 +55,9 @@ HELPDESCRIPTION
 			parent process.
     --module|-m MODULE	Activate only if testing for MODULE of the TESTEE is
 			enabled.
+    --piped		Indicate that the COMMAND is part of a pipeline.
+			Multiple OTHER-COMMANDs are joined with "|" instead of
+			";" then.
 HELPTEXT
 }
 
@@ -66,12 +69,14 @@ assertSingleCommand()
 testee="$TEST_TESTEE"
 module=
 commands=
+commandJoiner=';'
 while [ $# -ne 0 ]
 do
     case "$1" in
 	--help|-h|-\?)	shift; printLongUsage "$0"; exit 0;;
 	--for)		shift; testee="${1?}"; shift;;
 	--module|-m)	shift; module="${1:?}"; shift;;
+	--piped)	shift; commandJoiner='|';;
 	--command|-c)	shift
 			assertSingleCommand "$*"
 			[ -n "$TEST" -a "$1" = "$TEST" ] && shift   # The ${TEST:-echo} non-test fallback.
@@ -151,7 +156,7 @@ case ",${TEST}," in
 		printf >&2 '%s: Warning: Empty OTHER-COMMAND given for %q (better use TESTEE!)\n' "$scriptName" "${testee}${module:+:}${module}"
 	    else
 		[ "$hasOtherCommand" ] || commands=''
-		commands+="${commands:+; }${otherCommand}"
+		commands+="${commands:+$commandJoiner }${otherCommand}"
 		hasOtherCommand=t
 	    fi
 	done
