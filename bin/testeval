@@ -193,7 +193,7 @@ case ",${TEST}," in
 		    else
 			actions+=("outputting ${expandedFilespec}${exitStatus:+ and exiting with $exitStatus}")
 		    fi
-		    printf -v commands 'cat %q%s' "$expandedFilespec" "; exit${exitStatus:+ }${exitStatus}"
+		    printf -v commands '%scat %q%s' "${exitStatus:+(}" "$expandedFilespec" "${exitStatus:+; exit ${exitStatus})}"
 		    previousFilespec="$filespec"
 		else
 		    printf >&2 '%s: Warning: Non-existing FILE given for %q; ignoring: %s\n' "$scriptName" "${testee}${module:+:}${module}${testPointName:+::}${testPointName}" "$filespec"
