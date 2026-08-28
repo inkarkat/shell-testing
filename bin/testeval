@@ -30,7 +30,7 @@ If testing is not enabled for the caller, simply print COMMAND so that the
 invoking eval executes it normally.
 When \$TEST refers plainly to the TESTEE, COMMAND is printed for execution by
 the invoking eval.
-TEST=TESTEE[:MODULE][::TEST-POINT-NAME][EXTENSION] TESTEE ...
+\$ TEST=TESTEE[:MODULE][::TEST-POINT-NAME][EXTENSION] TESTEE ...
 
 Extensions:
 When \$TEST refers to TESTEE!, COMMAND is NOT printed / executed.
@@ -47,8 +47,8 @@ When \$TEST refers to TESTEE?PREDICATE, COMMAND is printed for execution by
 the invoking eval (or not printed / replaced / embellished according to any
 other instructions) only if PREDICATE is successful.
 
-With "TEST=test[eval] TESTEE ..." will show for what TESTEE it will enable (if
-not actually enabled).
+\$ TEST=test[eval] TESTEE ... will show for what TESTEE it will enable (if not
+  actually enabled).
 HELPDESCRIPTION
     echo
     printShortUsage "$1"
