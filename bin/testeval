@@ -1,5 +1,6 @@
 #!/bin/bash
 shopt -qs extglob
+${DEBUG:+eval $(debugtrace -o $- -- "$@")}
 
 readonly scriptDir="$([ "${BASH_SOURCE[0]}" ] && dirname -- "${BASH_SOURCE[0]}" || exit 3)"
 [ -d "$scriptDir" ] || { echo >&2 'ERROR: Cannot determine script directory!'; exit 3; }
@@ -10,7 +11,7 @@ printShortUsage()
 {
     # Note: short followed by long option; if the user knows the short one, they can
     # skim the long one.
-    printf 'Usage: %q %s\n' "$(basename "$1")" '[--for TESTEE] [-m|--module MODULE] [-p|--point TEST-POINT-NAME] [--piped] [-?|-h|--help] ...'
+    printf 'Usage: [TEST_SINK=FILE|&N|"" | TEST_LOGDIR=DIR] %q %s\n' "$(basename "$1")" '[--for TESTEE] [-m|--module MODULE] [-p|--point TEST-POINT-NAME] [--piped] [-?|-h|--help] ...'
     printf 'Usage: eval "$(${TEST:+%q %s} "${TEST:-printf}" "${TEST:- %%q}" %s)"\n' "$(basename "$1")" '... --' 'SIMPLECOMMAND [...]'
     printf 'Usage: eval "$(${TEST:+%q %s} "${TEST:-echo}" %s)"\n' "$(basename "$1")" '... -c|--command' '"COMMANDLINE"'
 }
@@ -29,7 +30,7 @@ printLongUsage()
 If testing is not enabled for the caller, simply print COMMAND so that the
 invoking eval executes it normally.
 When \$TEST refers plainly to the TESTEE, COMMAND is printed for execution by
-the invoking eval.
+the invoking eval and the invocation recorded.
 \$ TEST=TESTEE[:MODULE][::TEST-POINT-NAME][EXTENSION] TESTEE ...
 
 Extensions:
@@ -47,6 +48,9 @@ When \$TEST refers to TESTEE?PREDICATE, COMMAND is printed for execution by
 the invoking eval (or not printed / replaced / embellished according to any
 other instructions) only if PREDICATE is successful.
 
+Recording in the format TESTEE[:MODULE][::TEST-POINT-NAME] goes into \$TEST_SINK
+/ a log file TESTEE.log inside \$BATS_TEST_TMPDIR / \$TEST_LOGDIR / the current
+directory.
 \$ TEST=test[eval] TESTEE ... will show for what TESTEE it will enable (if not
   actually enabled).
 HELPDESCRIPTION
@@ -146,6 +150,24 @@ fi
 
 source "${libDir}/directiveParser.sh" || exit 3
 
+record()
+{
+    local redir
+    case "$TEST_SINK" in
+	'')	    printf -v redir '>>%q' "${BATS_TEST_TMPDIR:-${TEST_LOGDIR-$PWD}}/${testee}.log";;
+	\&+([0-9])) redir=">$TEST_SINK";;
+	?*)	    printf -v redir '>>%q' "$TEST_SINK";;
+    esac
+
+    eval "printf '%s%s%s\\n' \"\$testee\" \"\${module:+:}\${module}\" \"\${testPointName:+::}\${testPointName}\" $redir"
+}
+
+passthroughCommandsAndRecord()
+{
+    record
+    passthroughCommands
+}
+
 readonly scriptName="$(basename -- "${BASH_SOURCE[0]}")"
 if [ -z "$testee" ]; then
     {
@@ -177,7 +199,7 @@ case ",${TEST}," in
 	;;
     *,"${testee}${module:+:}${module}${testPointName:+::}${testPointName}!",*)
 	isActive=t
-	action=:
+	action=record
 	;;
     *)
 	hasOtherCommand=
@@ -241,7 +263,7 @@ if [ -z "$action" ]; then
 fi
 
 if [ "$isActive" ]; then
-    ${action:-passthroughCommands}
+    ${action:-passthroughCommandsAndRecord}
 else
     case ",${TEST}," in
 	*,@(test|${scriptName}),*)
