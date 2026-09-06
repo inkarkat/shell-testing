@@ -2,16 +2,6 @@
 
 load fixture
 
-testcallSimpleCommand()
-{
-    ${TEST:+testeval --for testee --} "${TEST:-printf}" "${TEST:- %q}" echo just 'a test'
-}
-
-testcallCommandLine()
-{
-    ${TEST:+testeval --for testee --command} "${TEST:-echo}" 'echo just a\ test'
-}
-
 @test "without TEST, the command is mirrored back" {
     run -0 testcallSimpleCommand
     assert_output ' echo just a\ test'	# Note: Leading space due to the printf format string.
