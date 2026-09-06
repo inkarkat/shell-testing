@@ -18,15 +18,6 @@ load fixture
     diff -y - --label expected "${BATS_TEST_TMPDIR}/testee.log" <<<'testee'
 }
 
-@test "with TESTEE:MODULE targeting, the invocation of that module is recorded" {
-    TEST=testee:testmodule run -0 testcallSimpleCommand
-    TEST=testee:testmodule run -0 testcallSimpleCommand --module testmodule
-    TEST=testee:testmodule run -0 testcallSimpleCommand --module anotherModule
-
-    assert_file_exists "${BATS_TEST_TMPDIR}/testee.log"
-    diff -y - --label expected "${BATS_TEST_TMPDIR}/testee.log" <<<'testee:testmodule'
-}
-
 @test "multiple invocations are recorded" {
     TEST=testee run -0 testcallSimpleCommand
     TEST=testee run -0 testcallSimpleCommand

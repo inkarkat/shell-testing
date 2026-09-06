@@ -2,6 +2,49 @@
 
 load fixture
 
+@test "with TESTEE?PREDICATE targeting, the invocation is recorded only if PREDICATE is true" {
+    TEST=testee\?true run -0 testcallSimpleCommand
+    TEST=testee\?false run -0 testcallSimpleCommand
+    assert_file_exists "${BATS_TEST_TMPDIR}/testee.log"
+    diff -y - --label expected "${BATS_TEST_TMPDIR}/testee.log" <<<'testee'
+}
+
+@test "with TESTEE?PREDICATE targeting of modules, the invocation is recorded only if PREDICATE is true" {
+    TEST=testee\?true run -0 testcallSimpleCommand --module testmodule1
+    TEST=testee\?false run -0 testcallSimpleCommand --module testmodule2
+    TEST=testee\?true run -0 testcallSimpleCommand --module testmodule3
+    TEST=testee\?false run -0 testcallSimpleCommand --module testmodule4
+    assert_file_exists "${BATS_TEST_TMPDIR}/testee.log"
+    diff -y - --label expected "${BATS_TEST_TMPDIR}/testee.log" <<'EOF'
+testee:testmodule1
+testee:testmodule3
+EOF
+}
+
+@test "with TESTEE?PREDICATE targeting of test points, the invocation is recorded only if PREDICATE is true" {
+    TEST=testee\?true run -0 testcallSimpleCommand --point testpoint1
+    TEST=testee\?false run -0 testcallSimpleCommand --point testpoint2
+    TEST=testee\?true run -0 testcallSimpleCommand --point testpoint3
+    TEST=testee\?false run -0 testcallSimpleCommand --point testpoint4
+    assert_file_exists "${BATS_TEST_TMPDIR}/testee.log"
+    diff -y - --label expected "${BATS_TEST_TMPDIR}/testee.log" <<'EOF'
+testee::testpoint1
+testee::testpoint3
+EOF
+}
+
+@test "with TESTEE:MODULE?PREDICATE targeting of test points, the invocation is recorded only if PREDICATE is true" {
+    TEST=testee\?true run -0 testcallSimpleCommand --module testmoduleA --point testpoint1
+    TEST=testee\?false run -0 testcallSimpleCommand --module testmoduleA --point testpoint2
+    TEST=testee\?true run -0 testcallSimpleCommand --module testmoduleB --point testpoint3
+    TEST=testee\?false run -0 testcallSimpleCommand --module testmoduleB --point testpoint4
+    assert_file_exists "${BATS_TEST_TMPDIR}/testee.log"
+    diff -y - --label expected "${BATS_TEST_TMPDIR}/testee.log" <<'EOF'
+testee:testmoduleA::testpoint1
+testee:testmoduleB::testpoint3
+EOF
+}
+
 @test "with TESTEE?PREDICATE,TESTEE!, the command is suppressed only if PREDICATE is true" {
     TEST=testee\?true,testee\! run -0 testcallSimpleCommand
     assert_output ''

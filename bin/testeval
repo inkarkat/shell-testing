@@ -30,7 +30,9 @@ printLongUsage()
 If testing is not enabled for the caller, simply print COMMAND so that the
 invoking eval executes it normally.
 When \$TEST refers plainly to the TESTEE, COMMAND is printed for execution by
-the invoking eval and the invocation recorded.
+the invoking eval and the invocation recorded. If no MODULE / TEST-POINT-NAME is
+given, invocations for all MODULEs / TEST-POINT-NAMEs of the TESTEE are
+recorded.
 \$ TEST=TESTEE[:MODULE][::TEST-POINT-NAME][EXTENSION] TESTEE ...
 
 Extensions:
@@ -259,6 +261,47 @@ if [ -z "$action" ]; then
 	isActive=t
 	commands+="$suffix"
 	[ -z "$suffix" ] && printf >&2 '%s: Warning: Empty SUFFIX given for %q\n' "$scriptName" "${testee}${module:+:}${module}${testPointName:+::}${testPointName}"
+    done
+fi
+
+# For recording, the MODULE and TEST-POINT-NAME are optional.
+if [ ! "$isActive" ]; then
+    case ",${TEST}," in
+	*,"${testee}${module:+:}${module}",*)
+	    # Accept any TEST-POINT-NAME if the TESTEE and MODULE match.
+	    [ -n "$testPointName" ] && isActive=t
+	    ;;
+	*,"${testee}",*)
+	    # Accept any MODULE if the TESTEE matches.
+	    [ -n "$module" ] && isActive=t
+	    ;;
+    esac
+fi
+
+# For recording, the ?PREDICATE should also be tested if MODULE and/or
+# TEST-POINT-NAME are not targeted.
+TEST+=,	# Allow anchoring replacements at the end.
+if [ ! "$isActive" -a -n "$testPointName" ]; then
+    # Ignore the TEST-POINT-NAME and check for a predicate for the TESTEE and
+    # MODULE.
+    hadPredicate=; while TEST="${TEST//${testee}${module:+:}${module}::${testPointName},/${testee}${module:+:}${module},}" testPointName='' testConsumeDirectiveInto predicate '?'; do
+	hadPredicate=t
+	if [ -z "$predicate" ]; then
+	    isActive=t
+	elif eval "($predicate)"; then
+	    isActive=t
+	fi
+    done
+fi
+if [ ! "$isActive" -a -n "$module" ]; then
+    # Ignore MODULE and TEST-POINT-NAME and check for a predicate for the TESTEE.
+    hadPredicate=; while TEST="${TEST//${testee}:${module},/${testee},}" module='' testPointName='' testConsumeDirectiveInto predicate '?'; do
+	hadPredicate=t
+	if [ -z "$predicate" ]; then
+	    isActive=t
+	elif eval "($predicate)"; then
+	    isActive=t
+	fi
     done
 fi
 
