@@ -30,8 +30,8 @@ printLongUsage()
 If testing is not enabled for the caller, simply print COMMAND so that the
 invoking eval executes it normally.
 When \$TEST refers plainly to the TESTEE, COMMAND is printed for execution by
-the invoking eval and the invocation recorded. If no MODULE / TEST-POINT-NAME is
-given, invocations for all MODULEs / TEST-POINT-NAMEs of the TESTEE are
+the invoking eval and the invocation is recorded. If no MODULE / TEST-POINT-NAME
+is targeted, invocations for all MODULEs / TEST-POINT-NAMEs of the TESTEE are
 recorded.
 \$ TEST=TESTEE[:MODULE][::TEST-POINT-NAME][EXTENSION] TESTEE ...
 
@@ -51,8 +51,8 @@ When \$TEST refers to TESTEE?PREDICATE, the invocation of COMMAND is recorded
 only if PREDICATE is successful.
 
 Recording in the format TESTEE[:MODULE][::TEST-POINT-NAME] goes into \$TEST_SINK
-/ a log file TESTEE.log inside \$BATS_TEST_TMPDIR / \$TEST_LOGDIR / the current
-directory.
+/ a log file TESTEE.log inside \$BATS_TEST_TMPDIR (i.e. an ephemeral per-test
+directory when running under Bats) / \$TEST_LOGDIR / the current directory.
 \$ TEST=test[eval] TESTEE ... will show for what TESTEE it will enable (if not
   actually enabled).
 HELPDESCRIPTION
