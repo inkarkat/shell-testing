@@ -46,9 +46,9 @@ When \$TEST refers to TESTEE^=PREFIX, PREFIX is put before COMMAND for
 execution by the invoking eval.
 When \$TEST refers to TESTEE+=SUFFIX, SUFFIX is put after COMMAND for
 execution by the invoking eval.
-When \$TEST refers to TESTEE?PREDICATE, COMMAND is printed for execution by
-the invoking eval (or not printed / replaced / embellished according to any
-other instructions) only if PREDICATE is successful.
+When \$TEST refers to TESTEE?PREDICATE, the invocation of COMMAND is recorded
+(and not printed / replaced / embellished according to any other instructions)
+only if PREDICATE is successful.
 
 Recording in the format TESTEE[:MODULE][::TEST-POINT-NAME] goes into \$TEST_SINK
 / a log file TESTEE.log inside \$BATS_TEST_TMPDIR / \$TEST_LOGDIR / the current
