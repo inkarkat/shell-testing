@@ -70,11 +70,11 @@ EOF
 }
 
 @test "with TESTEE?PREDICATE,TESTEE@FILE, command is skipped and the contents of FILE are used as output only if PREDICATE is true" {
-    TEST=testee\?true,testee@${BATS_TEST_DIRNAME@Q}/canned.txt run -0 testcallSimpleCommand
+    TEST="testee?true,testee@${BATS_TEST_DIRNAME}/canned.txt" run -0 testcallSimpleCommand
     printf -v expected 'cat %q' "${BATS_TEST_DIRNAME}/canned.txt"
     assert_output "$expected"
 
-    TEST=testee\?false,testee@${BATS_TEST_DIRNAME@Q}/canned.txt run -0 testcallSimpleCommand
+    TEST="testee?false,testee@${BATS_TEST_DIRNAME}/canned.txt" run -0 testcallSimpleCommand
     assert_output 'echo just a\ test'
 }
 
