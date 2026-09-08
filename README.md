@@ -2,11 +2,13 @@
 
 _Test hooks and utilities for shell scripts._
 
+![Build Status](https://github.com/inkarkat/shell-testing/actions/workflows/build.yml/badge.svg)
+
 ### Dependencies
 
 * Bash
 * [inkarkat/shell-basics](https://github.com/inkarkat/shell-basics)
-* automated testing is done with _bats - Bash Automated Testing System_ (https://github.com/bats-core/bats-core)
+* automated testing is done with _Bats_ - [Bash Automated Testing System](https://github.com/bats-core/bats-core)
 
 ### Installation
 
