@@ -13,6 +13,7 @@ _Test hooks and utilities for shell scripts._
 ### Installation
 
 * The `./bin` subdirectory is supposed to be added to `PATH`.
+* The [profile/functions.sh](profile/functions.sh) exports shell functions; it only needs to be sourced once, e.g. from your `.profile`.
 
 ### See Also
 
